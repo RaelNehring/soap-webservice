@@ -33,8 +33,8 @@ class CorsMiddleware(object):
     def __call__(self, environ, start_response):
         def custom_start_response(status, headers, exc_info=None):
             headers.append(('Access-Control-Allow-Origin', '*'))
-            headers.append(('Access-Control-Allow-Methods', 'POST, GET, OPTIONS'))
-            headers.append(('Access-Control-Allow-Headers', 'Content-Type,SOAPAction'))
+            headers.append(('Access-Control-Allow-Methods', '*'))
+            headers.append(('Access-Control-Allow-Headers', '*'))
             return start_response(status, headers, exc_info)
 
         if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/status':
