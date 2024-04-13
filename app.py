@@ -46,5 +46,5 @@ class CorsMiddleware(object):
 wsgi_app = WsgiApplication(application)
 wsgi_app_with_cors = CorsMiddleware(wsgi_app)
 
-server = make_server('0.0.0.0', 8000, wsgi_app_with_cors)
+server = make_server('0.0.0.0', 8080, wsgi_app_with_cors)
 server.serve_forever()
