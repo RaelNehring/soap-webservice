@@ -17,10 +17,10 @@ class CalculatorService(ServiceBase):
             return value1 * value2
         elif operation == '/':
             if value2 == 0:
-                return 0.0  # Return 0.0 to prevent division by zero
+                return 0.0  # Retorno 0.0 para evitar divisão por zero
             return value1 / value2
         else:
-            raise ValueError("Unsupported operation")
+            raise ValueError("Operação não suportada")
 
 application = Application([CalculatorService], 'soap.calculator',
                           in_protocol=Soap11(validator='lxml'),
@@ -31,15 +31,17 @@ class CorsMiddleware(object):
         self.app = app
 
     def __call__(self, environ, start_response):
-        if environ['REQUEST_METHOD'] == 'OPTIONS':
-            start_response('200 OK', [('Content-Type', 'text/plain')])
-            return [b""]
+        def custom_start_response(status, headers, exc_info=None):
+            headers.append(('Access-Control-Allow-Origin', '*'))
+            headers.append(('Access-Control-Allow-Methods', 'POST, GET, OPTIONS'))
+            headers.append(('Access-Control-Allow-Headers', 'Content-Type,SOAPAction'))
+            return start_response(status, headers, exc_info)
 
-        elif environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/status':
+        if environ['REQUEST_METHOD'] == 'GET' and environ['PATH_INFO'] == '/status':
             start_response('200 OK', [('Content-Type', 'text/plain')])
             return [b"Service is up and running"]
 
-        return self.app(environ, start_response)
+        return self.app(environ, custom_start_response)
 
 wsgi_app = WsgiApplication(application)
 wsgi_app_with_cors = CorsMiddleware(wsgi_app)
