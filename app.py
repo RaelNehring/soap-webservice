@@ -4,7 +4,7 @@ from spyne.model.primitive import Integer, String
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 from spyne.service import ServiceBase
-from wsgiref.simple_server import make_server
+from waitress import serve
 
 class CalculatorService(ServiceBase):
     @rpc(Integer, Integer, String, _returns=float)
@@ -46,5 +46,4 @@ class CorsMiddleware(object):
 wsgi_app = WsgiApplication(application)
 wsgi_app_with_cors = CorsMiddleware(wsgi_app)
 
-server = make_server('0.0.0.0', 8080, wsgi_app_with_cors)
-server.serve_forever()
+serve(wsgi_app_with_cors, host='0.0.0.0', port=8080)
