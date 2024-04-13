@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora SOAP</title>
+</head>
+<body>
+    <h1>Calculadora SOAP</h1>
+    <input id="value1" type="number" placeholder="Valor 1">
+    <input id="value2" type="number" placeholder="Valor 2">
+    <select id="operation">
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">*</option>
+        <option value="/">/</option>
+    </select>
+    <button onclick="calculate()">Calcular</button>
+    <p id="result">Resultado: </p>
+
+    <script>
+        function calculate() {
+            var value1 = document.getElementById("value1").value;
+            var value2 = document.getElementById("value2").value;
+            var operation = document.getElementById("operation").value;
+
+            var requestBody = `
+                <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+                    <Body>
+                        <calculate xmlns="soap.calculator">
+                            <value1>${value1}</value1>
+                            <value2>${value2}</value2>
+                            <operation>${operation}</operation>
+                        </calculate>
+                    </Body>
+                </Envelope>
+            `;
+
+            fetch('http://127.0.0.1:8000', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/xml',
+                    'SOAPAction': 'calculate'
+                },
+                body: requestBody
+            })
+            .then(response => response.text())
+            .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+            .then(data => {
+                const namespaceURI = 'soap.calculator';
+                const resultElement = data.getElementsByTagNameNS(namespaceURI, "calculateResult")[0];
+                if (resultElement) {
+                    const result = resultElement.textContent;
+                    document.getElementById("result").innerText = 'Resultado: ' + result;
+                } else {
+                    console.error('Elemento "calculateResult" não encontrado no XML.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
